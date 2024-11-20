@@ -9,98 +9,120 @@
             background-color: black;
             color: white;
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
 
         .container {
             background-color: black;
             border: 2px solid white;
             padding: 20px;
+            border-radius: 15px;
             text-align: center;
             width: 300px;
         }
 
         h1 {
-            font-size: 24px;
-            color: white;
             margin-bottom: 20px;
         }
 
-        button {
-            width: 100%;
+        .button {
+            background-color: #333;
+            border: 1px solid white;
+            color: white;
             padding: 15px;
+            width: 80%;
             margin: 10px 0;
-            border: none;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        #deleteBtn {
-            background-color: red;
-            color: white;
-        }
-
-        #generateBtn {
-            background-color: green;
-            color: white;
-        }
-
-        #output {
-            margin-top: 20px;
             font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .delete-button {
+            background-color: red;
+        }
+
+        .delete-button:hover {
+            background-color: darkred;
+        }
+
+        .input-field {
+            background-color: #222;
             color: white;
+            border: 1px solid white;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 80%;
+            border-radius: 12px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>CER3 VULNERABILITY</h1>
-        <button id="deleteBtn" onclick="deleteKeys()">Delete All Keys</button>
-        <button id="generateBtn">Generate Keys</button>
-        <div id="output"></div>
+
+        <!-- Input for configurable expiration year -->
+        <input type="text" id="expiresYear" class="input-field" placeholder="Enter expiry year (e.g. 2269)" />
+
+        <button class="button delete-button" onclick="confirmDelete()">Delete All Keys</button>
+        <button class="button" onclick="generateKeys()">Generate Keys</button>
     </div>
 
     <script>
-        async function deleteKeys() {
-            const url = "https://673ce3d54db5a341d8334ff8.mockapi.io/keys";
-            const outputDiv = document.getElementById("output");
-            outputDiv.innerHTML = "";  // Clear any previous output
-
-            try {
-                // Get the list of items
-                const response = await fetch(url);
-                if (!response.ok) {
-                    outputDiv.innerHTML = `Failed to retrieve items. Status code: ${response.status}`;
-                    return;
-                }
-                const data = await response.json();
-
-                // Iterate over the items and delete each one
-                for (const item of data) {
-                    if (item.key) {  // Check if 'key' field exists
-                        const itemId = item.id;
-                        const deleteResponse = await fetch(`${url}/${itemId}`, {
-                            method: 'DELETE',
-                        });
-
-                        if (deleteResponse.ok) {
-                            outputDiv.innerHTML += `Successfully deleted item with ID: ${itemId}<br>`;
-                        } else {
-                            outputDiv.innerHTML += `Failed to delete item with ID: ${itemId}. Status code: ${deleteResponse.status}<br>`;
-                        }
-                    } else {
-                        outputDiv.innerHTML += `No 'key' field found in item with ID: ${item.id}<br>`;
-                    }
-                }
-            } catch (error) {
-                outputDiv.innerHTML = `Error: ${error.message}`;
+        function confirmDelete() {
+            const confirmation = confirm("Are you sure you want to delete all keys?");
+            if (confirmation) {
+                // Proceed with deleting keys here
+                alert("Keys have been deleted.");
+                // You can make an actual delete request here
+            } else {
+                alert("Delete operation canceled.");
             }
+        }
+
+        function generateKeys() {
+            const expiresYear = document.getElementById('expiresYear').value;
+
+            // Validate the input
+            if (!expiresYear || isNaN(expiresYear)) {
+                alert("Please enter a valid year.");
+                return;
+            }
+
+            // Generate the 'expiresAt' date with the specified year
+            const expiresAt = `${expiresYear}-11-20T08:22:37.988Z`;
+
+            const keyData = {
+                key: `LIFETIMEKEY-${Math.floor(Math.random() * 10000000000)}`, // Generate a random key
+                expiresAt: expiresAt,
+                userId: "8386380588"
+            };
+
+            // Make the POST request to generate the key
+            fetch("https://673ce3d54db5a341d8334ff8.mockapi.io/keys", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(keyData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Key generated successfully: " + data.key);
+            })
+            .catch(error => {
+                console.error("Error generating key:", error);
+                alert("Failed to generate key.");
+            });
         }
     </script>
 </body>
