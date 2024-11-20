@@ -69,10 +69,7 @@
 <body>
     <div class="container">
         <h1>CER3 VULNERABILITY</h1>
-
-        <!-- Input for configurable expiration year -->
         <input type="text" id="expiresYear" class="input-field" placeholder="Enter expiry year (e.g. 2269)" />
-
         <button class="button delete-button" onclick="confirmDelete()">Delete All Keys</button>
         <button class="button" onclick="generateKeys()">Generate Keys</button>
     </div>
@@ -81,9 +78,7 @@
         function confirmDelete() {
             const confirmation = confirm("Are you sure you want to delete all keys?");
             if (confirmation) {
-                // Proceed with deleting keys here
                 alert("Keys have been deleted.");
-                // You can make an actual delete request here
             } else {
                 alert("Delete operation canceled.");
             }
@@ -91,23 +86,16 @@
 
         function generateKeys() {
             const expiresYear = document.getElementById('expiresYear').value;
-
-            // Validate the input
             if (!expiresYear || isNaN(expiresYear)) {
                 alert("Please enter a valid year.");
                 return;
             }
-
-            // Generate the 'expiresAt' date with the specified year
             const expiresAt = `${expiresYear}-11-20T08:22:37.988Z`;
-
             const keyData = {
-                key: `LIFETIMEKEY-${Math.floor(Math.random() * 10000000000)}`, // Generate a random key
+                key: `LIFETIMEKEY-${Math.floor(Math.random() * 10000000000)}`,
                 expiresAt: expiresAt,
                 userId: "8386380588"
             };
-
-            // Make the POST request to generate the key
             fetch("https://673ce3d54db5a341d8334ff8.mockapi.io/keys", {
                 method: "POST",
                 headers: {
