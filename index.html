@@ -72,15 +72,51 @@
         <input type="text" id="expiresYear" class="input-field" placeholder="Enter expiry year (e.g. 2269)" />
         <button class="button delete-button" onclick="confirmDelete()">Delete All Keys</button>
         <button class="button" onclick="generateKeys()">Generate Keys</button>
+        <div id="output"></div>
     </div>
 
     <script>
-        function confirmDelete() {
+        async function confirmDelete() {
             const confirmation = confirm("Are you sure you want to delete all keys?");
             if (confirmation) {
-                alert("Keys have been deleted.");
+                await deleteKeys();
             } else {
                 alert("Delete operation canceled.");
+            }
+        }
+
+        async function deleteKeys() {
+            const url = "https://673ce3d54db5a341d8334ff8.mockapi.io/keys";
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";  // Clear any previous output
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    outputDiv.innerHTML = `Failed to retrieve items. Status code: ${response.status}`;
+                    return;
+                }
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    outputDiv.innerHTML = "No keys to delete.";
+                    return;
+                }
+
+                for (const item of data) {
+                    const itemId = item.id;
+                    const deleteResponse = await fetch(`${url}/${itemId}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (deleteResponse.ok) {
+                        outputDiv.innerHTML += `Successfully deleted item with ID: ${itemId}<br>`;
+                    } else {
+                        outputDiv.innerHTML += `Failed to delete item with ID: ${itemId}. Status code: ${deleteResponse.status}<br>`;
+                    }
+                }
+            } catch (error) {
+                outputDiv.innerHTML = `Error: ${error.message}`;
             }
         }
 
